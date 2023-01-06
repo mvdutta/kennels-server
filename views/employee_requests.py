@@ -20,3 +20,21 @@ def get_single_employee(id):
         if employee['id'] == id:
             requested_employee = employee
     return requested_employee
+
+
+def create_employee(employee):
+    """Creates a new location dictionary in the EMPLOYEE list of dictionaries"""
+    # Get the id value of the last employee in the list
+    max_id = EMPLOYEES[-1]["id"]
+
+    # Add 1 to whatever that number is
+    new_id = max_id + 1
+
+    # Add an `id` property to the location dictionary
+    employee["id"] = new_id
+
+    # Add the location dictionary to the list {append is similar to push}
+    EMPLOYEES.append(employee)
+
+    # Return the dictionary with `id` property added
+    return employee
