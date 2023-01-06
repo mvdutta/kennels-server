@@ -1,0 +1,10 @@
+To activate the environment:
+pipenv shell
+
+To deactivate the environment: deactivate
+
+to start server: 
+use debugger and press play or use the command python request_handler.py
+to stop server(needed to refresh the server(i.e localHost)): control c
+
+richard parker
