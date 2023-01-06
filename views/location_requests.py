@@ -40,3 +40,30 @@ def create_location(location):
 
     # Return the dictionary with `id` property added
     return location
+
+
+def delete_location(id):
+    """remove location dictionary from the list"""
+    # Initial -1 value for animal index, in case one isn't found
+    location_index = -1
+
+    # Iterate the LOCATIONS list, but use enumerate() so that you
+    # can access the index value of each item
+    for index, location in enumerate(LOCATIONS):
+        if location["id"] == id:
+            # Found the location. Store the current index.
+            location_index = index
+
+    # If the location was found, use pop(int) to remove it from list
+    if location_index >= 0:
+        LOCATIONS.pop(location_index)
+
+def update_location(id, new_location):
+    # Iterate the LOCATIONS list, but use enumerate() so that
+    # you can access the index value of each item.
+    """iterates the list of locations until it finds the right one, and then replaces it with what the client sent as the replacement."""
+    for index, location in enumerate(LOCATIONS):
+        if location["id"] == id:
+            # Found the location. Update the value.
+            LOCATIONS[index] = new_location
+            break
