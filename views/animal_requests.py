@@ -4,21 +4,24 @@ ANIMALS = [
         "name": "Snickers",
         "species": "Dog",
         "locationId": 1,
-        "customerId": 4
+        "customerId": 4,
+        "status": "Admitted"
     },
     {
         "id": 2,
         "name": "Roman",
         "species": "Dog",
         "locationId": 1,
-        "customerId": 2
+        "customerId": 2,
+        "status": "Admitted"
     },
     {
         "id": 3,
         "name": "Blue",
         "species": "Cat",
         "locationId": 2,
-        "customerId": 1
+        "customerId": 1,
+        "status": "Admitted"
     }
 ]
 
@@ -30,6 +33,8 @@ def get_all_animals():
 # Function with a single parameter
 # the responsibility of this function is to look up a single animal
 # the id of the animal has to be passed as an argument.
+
+
 def get_single_animal(id):
     """Variable to hold the found animal, if it exists"""
     requested_animal = None
@@ -43,9 +48,11 @@ def get_single_animal(id):
             requested_animal = animal
 
     return requested_animal
+
+
 def create_animal(animal):
     """Creates a new animal dictionary in the ANIMALS list of dictionaries"""
-     #Get the id value of the last animal in the list
+    # Get the id value of the last animal in the list
     max_id = ANIMALS[-1]["id"]
 
     # Add 1 to whatever that number is
@@ -59,6 +66,8 @@ def create_animal(animal):
 
     # Return the dictionary with `id` property added
     return animal
+
+
 def delete_animal(id):
     """remove animal dictionary from the list"""
     # Initial -1 value for animal index, in case one isn't found
@@ -74,3 +83,14 @@ def delete_animal(id):
     # If the animal was found, use pop(int) to remove it from list
     if animal_index >= 0:
         ANIMALS.pop(animal_index)
+
+
+def update_animal(id, new_animal):
+    # Iterate the ANIMALS list, but use enumerate() so that
+    # you can access the index value of each item.
+    """iterates the list of animals until it finds the right one, and then replaces it with what the client sent as the replacement."""
+    for index, animal in enumerate(ANIMALS):
+        if animal["id"] == id:
+            # Found the animal. Update the value.
+            ANIMALS[index] = new_animal
+            break
