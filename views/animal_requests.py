@@ -1,3 +1,5 @@
+from .location_requests import get_single_location
+from .customer_requests import get_single_customer
 ANIMALS = [
     {
         "id": 1,
@@ -46,7 +48,15 @@ def get_single_animal(id):
         # instead of the dot notation that JavaScript used.
         if animal["id"] == id:
             requested_animal = animal
-
+            # accessing the locationId of the animal and storing it in variable location_id
+            location_id = animal["locationId"]
+            # created a new key (location) and storing the information from the location obtained from function get_single_location
+            requested_animal["location"] = get_single_location(location_id)
+            # no longer need locationId key anymore
+            del requested_animal['locationId']
+            customer_id = animal['customerId']
+            requested_animal["customer"] = get_single_customer(customer_id)
+            del requested_animal['customerId']
     return requested_animal
 
 

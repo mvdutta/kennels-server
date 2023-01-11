@@ -41,8 +41,6 @@ class HandleRequests(BaseHTTPRequestHandler):
     def do_GET(self):
         """Handles GET requests to the server...responds to the client's GET request
         """
-        # Set the response code to 'Ok'
-        self._set_headers(200)
         response = {}  # Default response
 
         # Parse the URL and capture the tuple that is returned
@@ -51,22 +49,54 @@ class HandleRequests(BaseHTTPRequestHandler):
         if resource == "animals":
             if id is not None:
                 response = get_single_animal(id)
+                if response:
+                    self._set_headers(200)
+                else:
+                    self._set_headers(404)
+                    response = {
+                        "message": f'The id of {id} is not valid'
+                    }
             else:
-                response = get_all_animals()
+                self._set_headers(200)
+                response = get_all_animals()         
         elif resource == "locations":
             if id is not None:
                 response = get_single_location(id)
+                if response:
+                    self._set_headers(200)
+                else:
+                    self._set_headers(404)
+                    response = {
+                        "message": f'The id of {id} is not valid'
+                    }
             else:
+                self._set_headers(200)
                 response = get_all_locations()
         elif resource == "employees":
             if id is not None:
                 response = get_single_employee(id)
+                if response:
+                    self._set_headers(200)
+                else:
+                    self._set_headers(404)
+                    response = {
+                        "message": f'The id of {id} is not valid'
+                    }
             else:
+                self._set_headers(200)
                 response = get_all_employees()
         elif resource == "customers":
             if id is not None:
                 response = get_single_customer(id)
+                if response:
+                    self._set_headers(200)
+                else:
+                    self._set_headers(404)
+                    response = {
+                        "message": f'The id of {id} is not valid'
+                    }
             else:
+                self._set_headers(200)
                 response = get_all_customers()
         else:
             response = {}
@@ -76,7 +106,6 @@ class HandleRequests(BaseHTTPRequestHandler):
     # It handles any POST request.
     def do_POST(self):
         """Handles POST requests to the server """
-        self._set_headers(201)
         content_len = int(self.headers.get('content-length', 0))
         post_body = self.rfile.read(content_len)
 
@@ -88,63 +117,100 @@ class HandleRequests(BaseHTTPRequestHandler):
 
         # Initialize new animal
         new_animal = None
-
-        # Add a new animal to the list. Don't worry about
-        # the orange squiggle, you'll define the create_animal
-        # function next.
         if resource == "animals":
-            new_animal = create_animal(post_body)
-
+            # if "name" in post_body and "species" in post_body and "locationId" in post_body and "customerId" in post_body and "status" in post_body:
+            keys = ['name', 'species', 'locationId', 'customerId', 'status']
+            if has_all_keys(post_body, keys):
+                self._set_headers(201)
+                new_animal = create_animal(post_body)
+            else:
+                self._set_headers(400)
+                # create a dictionary with one key called message and store it in new_animal using a Python version of a ternary statement
+                missing_keys = find_missing_keys(post_body, keys)
+                msg = ", ".join(missing_keys) + " missing. Please update."
+                
+                new_animal = {
+                    "message": msg
+                }
         # Encode the new animal and send in response
             self.wfile.write(json.dumps(new_animal).encode())
         # Initialize new location
         new_location = None
         if resource == "locations":
-            new_location = create_location(post_body)
-
+            # check to see if the dictionary has the keys: name and address
+            if "name" in post_body and "address" in post_body:
+                self._set_headers(201)
+                new_location = create_location(post_body)
+            else:
+                self._set_headers(400)
+                # create a dictionary with one key called message and store it in new_location using a Python version of a ternary statement
+                new_location = {
+                    "message": f'{"name is required" if "name" not in post_body else ""} {"address is required" if "address" not in post_body else ""}'
+                }
         # Encode the new location and send in response
             self.wfile.write(json.dumps(new_location).encode())
+            return
         # Initialize new employee
         new_employee = None
         if resource == "employees":
-            new_employee = create_employee(post_body)
+            if "name" in post_body:
+                self._set_headers(201)
+                new_employee = create_employee(post_body)
+            else:
+                self._set_headers(400)
+                # create a dictionary with one key called message and store it in new_employee using a Python version of a ternary statement
+                new_employee = {
+                    "message": f'{"name is required" if "name" not in post_body else ""}'
+                }
 
         # Encode the new employee and send in response
             self.wfile.write(json.dumps(new_employee).encode())
             # Initialize new customer
         new_customer = None
         if resource == "customers":
-            new_customer = create_customer(post_body)
+            if "name" in post_body:
+                self._set_headers(201)
+                new_customer = create_customer(post_body)
+            else:
+                self._set_headers(400)
+                new_customer = {
+                    "message": f'{"name is required" if "name" not in post_body else ""}'
+                }
 
         # Encode the new customer and send in response
             self.wfile.write(json.dumps(new_customer).encode())
 
     def do_DELETE(self):
         """method to process the DELETE request. Uses response code 204: request processed, no information to send back/don't need to refresh"""
-        self._set_headers(204)
 
         # Parse the URL
         (resource, id) = self.parse_url(self.path)
 
         # Delete a single animal from the list
         if resource == "animals":
+            self._set_headers(204)
             delete_animal(id)
 
         # Encode the new animal and send in response
             self.wfile.write("".encode())
 
         if resource == "locations":
+            self._set_headers(204)
             delete_location(id)
 
             self.wfile.write("".encode())        
         if resource == "employees":
+            self._set_headers(204)
             delete_employee(id)
 
             self.wfile.write("".encode())
         if resource == "customers":
-            delete_customer(id)
-
-            self.wfile.write("".encode())
+            # delete_customer(id)
+            self._set_headers(405)
+            response = {
+                "message":'Deleting customers is not permitted. Please contact the company.'
+            }
+            self.wfile.write(json.dumps(response).encode())
 
     # A method that handles any PUT request.
 
@@ -204,6 +270,19 @@ class HandleRequests(BaseHTTPRequestHandler):
                          'X-Requested-With, Content-Type, Accept')
         self.end_headers()
 
+
+def has_all_keys(dict, key_list):
+    for key in key_list:
+        if key not in dict:
+            return False
+    return True
+
+
+def find_missing_keys(post_body, key_list):
+    post_body_keys = list(post_body.keys())
+    for key in post_body_keys:
+        key_list.remove(key)
+    return key_list
 
 # This function is not inside the class. It is the starting
 # point of this application.
