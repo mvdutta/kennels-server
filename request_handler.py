@@ -130,7 +130,7 @@ class HandleRequests(BaseHTTPRequestHandler):
                 #make a list of the keys in post_body using the built-in keys() function and then converting it into an ordinary python list using list(...). Call this post_body_keys
                 post_body_keys = list(post_body.keys())
 
-                #use a list comprehension to find the keys in "keys" that are not present in post_body_keys
+                #use a list comprehension to find those keys in "keys" that are not present in post_body_keys
                 missing_keys = [key for key in keys if key not in post_body_keys]
                 msg = ", ".join(missing_keys) + " missing. Please update."
                 
