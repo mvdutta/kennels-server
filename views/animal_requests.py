@@ -31,36 +31,34 @@ ANIMALS = [
 ]
 
 
-def get_all_animals():
-    """returns ANIMAL list of dictionaries"""
-    return ANIMALS
+
 
 # Function with a single parameter
 # the responsibility of this function is to look up a single animal
 # the id of the animal has to be passed as an argument.
 
 
-def get_single_animal(id):
-    """Variable to hold the found animal, if it exists"""
-    requested_animal = None
+# def get_single_animal(id):
+#     """Variable to hold the found animal, if it exists"""
+#     requested_animal = None
 
-    # Iterate the ANIMALS list above. Very similar to the
-    # for..of loops you used in JavaScript.
-    for animal in ANIMALS:
-        # Dictionaries in Python use [] notation to find a key
-        # instead of the dot notation that JavaScript used.
-        if animal["id"] == id:
-            requested_animal = animal
-            # accessing the locationId of the animal and storing it in variable location_id
-            location_id = animal["locationId"]
-            # created a new key (location) and storing the information from the location obtained from function get_single_location
-            requested_animal["location"] = get_single_location(location_id)
-            # no longer need locationId key anymore
-            del requested_animal['locationId']
-            customer_id = animal['customerId']
-            requested_animal["customer"] = get_single_customer(customer_id)
-            del requested_animal['customerId']
-    return requested_animal
+#     # Iterate the ANIMALS list above. Very similar to the
+#     # for..of loops you used in JavaScript.
+#     for animal in ANIMALS:
+#         # Dictionaries in Python use [] notation to find a key
+#         # instead of the dot notation that JavaScript used.
+#         if animal["id"] == id:
+#             requested_animal = animal
+#             # accessing the locationId of the animal and storing it in variable location_id
+#             location_id = animal["locationId"]
+#             # created a new key (location) and storing the information from the location obtained from function get_single_location
+#             requested_animal["location"] = get_single_location(location_id)
+#             # no longer need locationId key anymore
+#             del requested_animal['locationId']
+#             customer_id = animal['customerId']
+#             requested_animal["customer"] = get_single_customer(customer_id)
+#             del requested_animal['customerId']
+#     return requested_animal
 
 
 def create_animal(animal):
@@ -149,3 +147,33 @@ def get_all_animals():
             animals.append(animal.__dict__)
 
     return animals
+
+
+def get_single_animal(id):
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        # Use a ? parameter to inject a variable's value
+        # into the SQL statement.
+        db_cursor.execute("""
+        SELECT
+            a.id,
+            a.name,
+            a.breed,
+            a.status,
+            a.location_id,
+            a.customer_id
+        FROM animal a
+        WHERE a.id = ?
+        """, (id, ))
+
+        # Load the single result into memory
+        data = db_cursor.fetchone()
+
+        # Create an animal instance from the current row
+        animal = Animal(data['id'], data['name'], data['breed'],
+                        data['status'], data['location_id'],
+                        data['customer_id'])
+
+        return animal.__dict__
