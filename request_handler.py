@@ -126,7 +126,12 @@ class HandleRequests(BaseHTTPRequestHandler):
             else:
                 self._set_headers(400)
                 # create a dictionary with one key called message and store it in new_animal using a Python version of a ternary statement
-                missing_keys = find_missing_keys(post_body, keys)
+
+                #make a list of the keys in post_body using the built-in keys() function and then converting it into an ordinary python list using list(...). Call this post_body_keys
+                post_body_keys = list(post_body.keys())
+
+                #use a list comprehension to find the keys in "keys" that are not present in post_body_keys
+                missing_keys = [key for key in keys if key not in post_body_keys]
                 msg = ", ".join(missing_keys) + " missing. Please update."
                 
                 new_animal = {
@@ -272,17 +277,12 @@ class HandleRequests(BaseHTTPRequestHandler):
 
 
 def has_all_keys(dict, key_list):
+    '''Checks if the dictionary dict has all the keys in the list key_list. Returns false if any of the keys are not found, and true if all the keys are found'''
     for key in key_list:
         if key not in dict:
             return False
     return True
 
-
-def find_missing_keys(post_body, key_list):
-    post_body_keys = list(post_body.keys())
-    for key in post_body_keys:
-        key_list.remove(key)
-    return key_list
 
 # This function is not inside the class. It is the starting
 # point of this application.
