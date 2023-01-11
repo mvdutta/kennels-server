@@ -73,6 +73,17 @@ WHERE a.id = 2
 
 SELECT
     c.id,
-    c.name   
+    c.name,
+    c.address,
+    c.email,
+    c.password  
 FROM customer c
 WHERE c.id = 3
+
+SELECT
+    e.id,
+    e.name,
+    e.address,
+    e.location_id   
+FROM employee e
+WHERE e.id = 4

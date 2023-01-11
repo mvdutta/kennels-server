@@ -17,13 +17,13 @@ from models import Customer
 #     return CUSTOMERS
 
 # Function with a single parameter
-# def get_single_customer(id):
-#     """ Variable to hold the found customer, if it exists """
-#     requested_customer = None
-#     for customer in CUSTOMERS:
-#         if customer['id'] == id:
-#             requested_customer = customer
-#     return requested_customer
+def get_single_customer(id):
+    """ Variable to hold the found customer, if it exists """
+    requested_customer = None
+    for customer in CUSTOMERS:
+        if customer['id'] == id:
+            requested_customer = customer
+    return requested_customer
 
 def create_customer(customer):
     """Creates a new customer dictionary in the CUSTOMERS list of dictionaries"""
@@ -81,7 +81,10 @@ def get_all_customers():
         db_cursor.execute("""
         SELECT
             c.id,
-            c.name
+            c.name,
+            c.address,
+            c.email,
+            c.password
         FROM customer c
         """)
 
@@ -98,7 +101,7 @@ def get_all_customers():
             # Note that the database fields are specified in
             # exact order of the parameters defined in the
             # Customer class above.
-            customer = Customer(row['id'], row['name'])
+            customer = Customer(row['id'], row['name'], row['address'], row['email'], row['password'])
 
             customers.append(customer.__dict__)
 
@@ -114,7 +117,10 @@ def get_single_customer(id):
         db_cursor.execute("""
         SELECT
             c.id,
-            c.name
+            c.name,
+            c.address,
+            c.email,
+            c.password
         FROM customer c
         WHERE c.id = ?
         """, (id, ))
@@ -123,6 +129,7 @@ def get_single_customer(id):
         data = db_cursor.fetchone()
 
         # Create a customer instance from the current row
-        customer = Customer(data['id'], data['name'])
+        customer = Customer(data['id'], data['name'],
+                            data['address'], data['email'], data['password'])
 
         return customer.__dict__

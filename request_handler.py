@@ -127,7 +127,7 @@ class HandleRequests(BaseHTTPRequestHandler):
                 self._set_headers(400)
                 # create a dictionary with one key called message and store it in new_animal using a Python version of a ternary statement
 
-                #make a list of the keys in post_body using the built-in keys() function and then converting it into an ordinary python list using list(...). Call this post_body_keys
+                #make a list of the keys in post_body using the built-in keys() function and convert it into python list using list(...). Call this post_body_keys
                 post_body_keys = list(post_body.keys())
 
                 #use a list comprehension to find those keys in "keys" that are not present in post_body_keys
