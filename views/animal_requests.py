@@ -1,6 +1,7 @@
 import sqlite3
 import json
 from models import Animal
+from models import Location
 from .location_requests import get_single_location
 from .customer_requests import get_single_customer
 ANIMALS = [
@@ -132,6 +133,7 @@ def get_all_animals():
 
         # Convert rows of data into a Python list
         dataset = db_cursor.fetchall()
+        print(len(dataset))
 
         # Iterate list of data returned from database
         for row in dataset:
@@ -177,3 +179,41 @@ def get_single_animal(id):
                         data['customer_id'])
 
         return animal.__dict__
+
+
+def get_animal_by_location(location_id):
+
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+        # Write the SQL query to get the information you want
+        db_cursor.execute("""
+        SELECT
+            a.id,
+            a.name,
+            a.breed,
+            a.status,
+            a.location_id,
+            a.customer_id
+        FROM animal a
+        WHERE a.location_id = ?
+        """, (location_id, ))
+        animals = []
+        dataset = db_cursor.fetchall()  # fetches all the results of the sql query and stores them in a variable called dataset, since at most one customer will be found, dataset will have the information from one row of the sql table
+
+        # len(dataset) will give us the number of rows returned by the query (either 1 or 0 in this case), and can be used to handle the case where the customer was not found (len(dataset) would be 0 in that case)
+
+        # Now we iterate over dataset (there is only one row in it). create an instance of the Customer class with the information from that row (id, name, address etc).
+        # Then use the in-built .__dict__ method (available to any class instance) to convert it into a dictionary.
+        # Then append this dictionary to the list "customers"
+        if len(dataset) > 0:
+            for row in dataset:
+                animal = Animal(
+                    row['id'], row['name'], row['breed'], row['status'], row['location_id'], row['customer_id'])
+                result = animal.__dict__
+                animals.append(result)
+        else:
+            result = {}
+            animals.append(result)
+    # Since we want to return the single dictionary inside the list "customers" rather than the list itself, we return the first element in the list, which is the dictionary by using [0]
+    return animals

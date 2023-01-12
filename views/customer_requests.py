@@ -155,15 +155,18 @@ def get_customer_by_email(email):
         customers = []
         dataset = db_cursor.fetchall()#fetches all the results of the sql query and stores them in a variable called dataset, since at most one customer will be found, dataset will have the information from one row of the sql table
 
-        # len(dataset) will give us the number of rows returned by the querry (either 1 or 0 in this case), and can be used to handle the case where the customer was not found (len(dataset) would be 0 in that case)
+        # len(dataset) will give us the number of rows returned by the query (either 1 or 0 in this case), and can be used to handle the case where the customer was not found (len(dataset) would be 0 in that case)
 
         #Now we iterate over dataset (there is only one row in it). create an instance of the Customer class with the information from that row (id, name, address etc). 
         # Then use the in-built .__dict__ method (available to any class instance) to convert it into a dictionary. 
         # Then append this dictionary to the list "customers" 
-        
-        for row in dataset:
-            customer = Customer(
-                row['id'], row['name'], row['address'], row['email'], row['password'])
-            customers.append(customer.__dict__)
-    # Since we want to return the single dictionary inside the list "customers" rather than the list itself, we do
-    return customers[0]
+        if len(dataset) > 0:
+            for row in dataset:
+                customer = Customer(
+                    row['id'], row['name'], row['address'], row['email'], row['password'])
+                result = customer.__dict__
+                customers.append(result)
+        else:
+            result = {}
+            customers.append(result)
+    return customers
