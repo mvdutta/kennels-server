@@ -1,7 +1,7 @@
 from urllib.parse import urlparse, parse_qs
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from views import get_all_animals, get_single_animal, get_all_locations, get_single_location, get_all_employees, get_single_employee, get_all_customers, get_single_customer, create_animal, create_location, create_employee, create_customer, delete_animal, delete_location, delete_employee, delete_customer, update_animal, update_customer, update_location, update_employee, get_customer_by_email, get_animal_by_location
+from views import get_all_animals, get_single_animal, get_all_locations, get_single_location, get_all_employees, get_single_employee, get_all_customers, get_single_customer, create_animal, create_location, create_employee, create_customer, delete_animal, delete_location, delete_employee, delete_customer, update_animal, update_customer, update_location, update_employee, get_customer_by_email, get_animal_by_location, get_animal_by_status, get_employee_by_location_id
 
 
 # Here's a class. It inherits from another class.
@@ -104,18 +104,33 @@ class HandleRequests(BaseHTTPRequestHandler):
             # see if the query dictionary has an email key
             if query.get('email') and resource == 'customers':
                 response = get_customer_by_email(query['email'][0])
-                if response:
+                if len(response) > 0:
                     self._set_headers(200)
                 else:
                     self._set_headers(404)
                     response = {"message": "Customer not found."}
             if query.get('location_id') and resource == 'animals':
                 response = get_animal_by_location(query['location_id'][0])
-                if response:
+                if len(response) > 0:
                     self._set_headers(200)
                 else:
                     self._set_headers(404)
                     response = {"message": "Animal not found."}
+            if query.get('status') and resource == 'animals':
+                response = get_animal_by_status(query['status'][0])
+                if len(response) > 0:
+                    self._set_headers(200)
+                else:
+                    self._set_headers(404)
+                    response = {"message": "Animal not found."}
+            if query.get('location_id') and resource == 'employees':
+                response = get_employee_by_location_id(query['location_id'][0])
+                if len(response) > 0:
+                    self._set_headers(200)
+                else:
+                    self._set_headers(404)
+                    response = {"message": "Employee not found."}
+
         # writing to the response to the client...dictionary is encoded as a string (json.dumps)
         self.wfile.write(json.dumps(response).encode())
     # Here's a method on the class that overrides the parent's method.

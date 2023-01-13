@@ -68,7 +68,6 @@ def update_customer(id, new_customer):
             CUSTOMERS[index] = new_customer
             break
 
-
 def get_all_customers():
     # Open a connection to the database
     with sqlite3.connect("./kennel.sqlite3") as conn:
@@ -166,7 +165,4 @@ def get_customer_by_email(email):
                     row['id'], row['name'], row['address'], row['email'], row['password'])
                 result = customer.__dict__
                 customers.append(result)
-        else:
-            result = {}
-            customers.append(result)
     return customers
