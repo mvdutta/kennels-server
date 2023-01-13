@@ -1,3 +1,10 @@
+import sqlite3
+import json
+from models import Animal
+from models import Location
+from .location_requests import get_single_location
+from .customer_requests import get_single_customer
+
 ANIMALS = [
     {
         "id": 1,
@@ -26,28 +33,34 @@ ANIMALS = [
 ]
 
 
-def get_all_animals():
-    """returns ANIMAL list of dictionaries"""
-    return ANIMALS
+
 
 # Function with a single parameter
 # the responsibility of this function is to look up a single animal
 # the id of the animal has to be passed as an argument.
 
 
-def get_single_animal(id):
-    """Variable to hold the found animal, if it exists"""
-    requested_animal = None
+# def get_single_animal(id):
+#     """Variable to hold the found animal, if it exists"""
+#     requested_animal = None
 
-    # Iterate the ANIMALS list above. Very similar to the
-    # for..of loops you used in JavaScript.
-    for animal in ANIMALS:
-        # Dictionaries in Python use [] notation to find a key
-        # instead of the dot notation that JavaScript used.
-        if animal["id"] == id:
-            requested_animal = animal
-
-    return requested_animal
+#     # Iterate the ANIMALS list above. Very similar to the
+#     # for..of loops you used in JavaScript.
+#     for animal in ANIMALS:
+#         # Dictionaries in Python use [] notation to find a key
+#         # instead of the dot notation that JavaScript used.
+#         if animal["id"] == id:
+#             requested_animal = animal
+#             # accessing the locationId of the animal and storing it in variable location_id
+#             location_id = animal["locationId"]
+#             # created a new key (location) and storing the information from the location obtained from function get_single_location
+#             requested_animal["location"] = get_single_location(location_id)
+#             # no longer need locationId key anymore
+#             del requested_animal['locationId']
+#             customer_id = animal['customerId']
+#             requested_animal["customer"] = get_single_customer(customer_id)
+#             del requested_animal['customerId']
+#     return requested_animal
 
 
 def create_animal(animal):
@@ -94,3 +107,130 @@ def update_animal(id, new_animal):
             # Found the animal. Update the value.
             ANIMALS[index] = new_animal
             break
+
+
+def get_all_animals():
+    # Open a connection to the database
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+
+        # Just use these. It's a Black Box.
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        # Write the SQL query to get the information you want
+        db_cursor.execute("""
+        SELECT
+            a.id,
+            a.name,
+            a.breed,
+            a.status,
+            a.location_id,
+            a.customer_id
+        FROM animal a
+        """)
+
+        # Initialize an empty list to hold all animal representations
+        animals = []
+
+        # Convert rows of data into a Python list
+        dataset = db_cursor.fetchall()
+        print(len(dataset))
+
+        # Iterate list of data returned from database
+        for row in dataset:
+
+            # Create an animal instance from the current row.
+            # Note that the database fields are specified in
+            # exact order of the parameters defined in the
+            # Animal class above.
+            animal = Animal(row['id'], row['name'], row['breed'],
+                            row['status'], row['location_id'],
+                            row['customer_id'])
+
+            animals.append(animal.__dict__)
+
+    return animals
+
+
+def get_single_animal(id):
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        # Use a ? parameter to inject a variable's value
+        # into the SQL statement.
+        db_cursor.execute("""
+        SELECT
+            a.id,
+            a.name,
+            a.breed,
+            a.status,
+            a.location_id,
+            a.customer_id
+        FROM animal a
+        WHERE a.id = ?
+        """, (id, ))
+
+        # Load the single result into memory
+        data = db_cursor.fetchone()
+
+        # Create an animal instance from the current row
+        animal = Animal(data['id'], data['name'], data['breed'],
+                        data['status'], data['location_id'],
+                        data['customer_id'])
+
+        return animal.__dict__
+
+def get_animal_by_location(location_id):
+
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+        # Write the SQL query to get the information you want
+        db_cursor.execute("""
+        SELECT
+            a.id,
+            a.name,
+            a.breed,
+            a.status,
+            a.location_id,
+            a.customer_id
+        FROM animal a
+        WHERE a.location_id = ?
+        """, (location_id, ))
+        animals = []
+        dataset = db_cursor.fetchall()  
+        if len(dataset) > 0:
+            for row in dataset:
+                animal = Animal(
+                    row['id'], row['name'], row['breed'], row['status'], row['location_id'], row['customer_id'])
+                result = animal.__dict__
+                animals.append(result)
+    return animals
+
+def get_animal_by_status(status):
+
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+        # Write the SQL query to get the information you want
+        db_cursor.execute("""
+        SELECT
+            a.id,
+            a.name,
+            a.breed,
+            a.status,
+            a.location_id,
+            a.customer_id
+        FROM animal a
+        WHERE a.status = ?
+        """, (status, ))
+        animals = []
+        dataset = db_cursor.fetchall()  
+        if len(dataset) > 0:
+            for row in dataset:
+                animal = Animal(
+                    row['id'], row['name'], row['breed'], row['status'], row['location_id'], row['customer_id'])
+                result = animal.__dict__
+                animals.append(result)
+    return animals
